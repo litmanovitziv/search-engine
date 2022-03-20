@@ -5,9 +5,10 @@ import string
 class Doc:
     stopchars = string.punctuation
 
-    def __init__(self, id):
+    def __init__(self, id, sub, body):
         self.id = id
-        self.subject = self.body = None
+        self.subject = sub
+        self.body = body
 
     @property
     def id(self):
