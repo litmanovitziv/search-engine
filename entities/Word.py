@@ -3,7 +3,7 @@ class Word:
     def __init__(self, word, doc):
         self.key = word
         self.docs_list = doc
-        self.rank = ''
+        self.rank = 0
 
     @property
     def key(self):
@@ -15,7 +15,7 @@ class Word:
 
     @property
     def docs_list(self):
-        return len(self._docs_list)
+        return self._docs_list
 
     @property
     def total(self):
@@ -26,7 +26,7 @@ class Word:
         self._docs_list = [doc]
         self._total = 1
 
-    def addDoc(self, doc):
+    def add_doc(self, doc):
         if doc not in self._docs_list:
             self._docs_list.append(doc)
             self._total += 1
@@ -40,7 +40,7 @@ class Word:
         self._rank = rank
 
     def get_docs(self):
-        return [doc._body for doc in self._docs_list]
+        return [doc.body for doc in self._docs_list]
 
     def print_entity(self):
         return '%s %s %s' % (self.rank, self.key, self.total)

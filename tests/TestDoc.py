@@ -1,27 +1,22 @@
 import unittest
-from Doc import *
+from entities.Doc import *
 
 
 class TestDoc(unittest.TestCase):
     def setUp(self):
-        self.doc = Doc(0)
+        self.doc = Doc(doc_id=0)
 
     def test_parse_sentences(self):
         self.doc.body = ''
-        self.assertEquals(self.doc.parse_sentences(), [])
+        self.assertEqual(self.doc.parse_sentences(), [])
         self.doc.body = 'I love you'
         self.assertTrue(len(self.doc.parse_sentences()), 1)
 
     def test_parse_words(self):
         self.doc.body = ''
-        self.assertEquals(self.doc.parse_words(), [])
+        self.assertEqual(self.doc.parse_words(), [])
         self.doc.body = 'I love you'
-        self.assertEquals(self.doc.parse_words(), ['i', 'love', 'you'])
-
-    @unittest.skip('test')
-    def test_text_file(self):
-        with open('sampleText.txt', 'r') as inputfile:
-            self.doc.body = inputfile.read()
+        self.assertEqual(self.doc.parse_words(), ['i', 'love', 'you'])
 
 if __name__ == '__main__':
     unittest.main()

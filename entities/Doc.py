@@ -1,14 +1,13 @@
-import xml.etree.ElementTree as ET
 import string
+from pandas import Series
 
 
 class Doc:
     stopchars = string.punctuation
 
-    def __init__(self, id, sub, body):
-        self.id = id
-        self.subject = sub
-        self.body = body
+    def __init__(self, doc_id):
+        self.id = doc_id
+        self.histogram = dict()
 
     @property
     def id(self):
@@ -19,20 +18,20 @@ class Doc:
         self._id = id
 
     @property
-    def subject(self):
-        return self._subject
-
-    @subject.setter
-    def subject(self, subject):
-        self._subject = subject
-
-    @property
     def body(self):
         return self._body
 
     @body.setter
     def body(self, body):
         self._body = body
+
+    @property
+    def histogram(self):
+        return self._histogram
+
+    @histogram.setter
+    def histogram(self, histogram):
+        self._histogram = histogram
 
     def parse_sentences(self):
         if bool(self.body):
@@ -56,18 +55,9 @@ class Doc:
 
                 # tokenize the sentence by spaces
                 words.extend(sentence.split())
+                self._histogram = Series(words).value_counts().to_dict()
 
         return words
 
     def dump_sentences_to_string(self):
         return 'Id: %s\nSubject: %s\nSentences:\n%s\n' % (self.id, self.subject, '\n'.join(self.parse_sentences()))
-
-    def dump_sentences_to_xml(self):
-        article = ET.Element('doc', {'id':self.id})
-        entity = ET.SubElement(article, 'subject')
-        entity.text = self.subject
-        if self.body is not None:
-            for sentence in self.parse_sentences():
-                entity = ET.SubElement(article, 'sentence')
-                entity.text = sentence
-        return article
