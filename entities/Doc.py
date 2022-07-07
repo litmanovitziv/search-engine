@@ -4,6 +4,7 @@ from pandas import Series
 
 class Doc:
     stopchars = string.punctuation
+    single_letter = ['a', 'i']
 
     def __init__(self, doc_id):
         self.id = doc_id
@@ -14,7 +15,7 @@ class Doc:
         return self._id
 
     @id.setter
-    def id(self, id):
+    def id(self, doc_id):
         self._id = id
 
     @property
@@ -53,11 +54,16 @@ class Doc:
                 # convert lowercase
                 sentence = sentence.lower()
 
-                # tokenize the sentence by spaces
-                words.extend(sentence.split())
+                # tokenize the sentence by spaces. Skip up stop words, single char and decimals
+                tokens = [token for token in sentence.split()
+                          if (len(token) > 1 and not(token.isdigit())) or token in self.single_letter]
+
+                words.extend(tokens)
                 self._histogram = Series(words).value_counts().to_dict()
 
         return words
 
-    def dump_sentences_to_string(self):
-        return 'Id: %s\nSubject: %s\nSentences:\n%s\n' % (self.id, self.subject, '\n'.join(self.parse_sentences()))
+    def to_dict(self, *args):
+        res = dict(id=self.id, sentences=self.parse_sentences(), histogram=self.histogram)
+        res.update({k:getattr(self, k) for k in args})
+        return res

@@ -18,5 +18,6 @@ class TestDoc(unittest.TestCase):
         self.doc.body = 'I love you'
         self.assertEqual(self.doc.parse_words(), ['i', 'love', 'you'])
 
+
 if __name__ == '__main__':
     unittest.main()

@@ -62,12 +62,6 @@ class ReviewSearchEngine:
         :return:
         """
         for word in review.parse_words():
-            if len(word) == 1:
-                continue
-
-            if word.isdigit():
-                continue
-
             # skip up stop words
             if word in self.stopwords:
                 continue

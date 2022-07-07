@@ -39,8 +39,8 @@ class Word:
     def rank(self, rank):
         self._rank = rank
 
-    def get_docs(self):
-        return [doc.body for doc in self._docs_list]
+    def get_docs(self, *args):
+        return [doc.to_dict(args) for doc in self._docs_list]
 
-    def print_entity(self):
-        return '%s %s %s' % (self.rank, self.key, self.total)
+    def print_sum(self):
+        return '%s %s %s' % (self.key, self.rank, self.total)
