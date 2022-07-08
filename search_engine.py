@@ -1,36 +1,14 @@
+import os.path as path
 import sys
-import json
+import glob
+import xml.etree.ElementTree as ET
 
-from numpy import doc
-
-from entities.Doc import *
+from entities.Article import *
+from entities.Review import *
 from entities.Word import *
 
 
-class Review(Doc):
-
-    def __init__(self, review_id, json_string):
-        super().__init__(doc_id=review_id)
-        record = json.loads(json_string)
-        self.product_id = record['product_id']
-        self.body = record['body']
-
-    @property
-    def product_id(self):
-        return self._product_id
-
-    @product_id.setter
-    def product_id(self, product_id):
-        self._product_id = product_id
-
-    def get_text(self):
-       """
-       get relevant text in review
-       """
-       return self.body
-
-
-class ReviewSearchEngine:
+class SearchEngine:
 
     def __init__(self, **parsing):
         try:
@@ -55,28 +33,28 @@ class ReviewSearchEngine:
     def invert_tbl(self, tbl):
         self._invert_tbl = tbl
 
-    def add(self, review:Review):
+    def add(self, entity:Doc):
         """
-        adds a review to search engine DB
-        :param review: the review to add
+        adds an entity to search engine DB
+        :param entity: the entity to add
         :return:
         """
-        for word in review.parse_words():
+        for word in entity.parse_words():
             # skip up stop words
             if word in self.stopwords:
                 continue
 
             record = self.invert_tbl.get(word)
             if record:
-                record.add_doc(review)
-            else: self.invert_tbl[word] = Word(word, review)
+                record.add_doc(entity)
+            else: self.invert_tbl[word] = Word(word, entity)
 
     def search(self, word:str, n:int=None):
         """
-        search reviews by input word, case insensitive
+        search entities by input word, case insensitive
         :param word: string containing single word
         :param n: optional, number of top matches to return
-        :return: list of matching Reviews, sorted by number of appearances of word in the review text
+        :return: list of matching Reviews, sorted by number of appearances of word in the entity text
         """
         word = word.strip().lower()
         if word in self.invert_tbl:
@@ -86,9 +64,9 @@ class ReviewSearchEngine:
 
     def most_common(self, n:int):
         """
-        return list of n most common words and the number of reviews they appeared in (each word is counted only once per review)
+        return list of n most common words and the number of entities they appeared in (each word is counted only once per entity)
         :param n: length of list to return
-        :return: list of tuples (word, n_reviews_appeared_in) sorted by n_reviews_appeared_in (desceding)
+        :return: list of tuples (word, n_entities_appeared_in) sorted by n_entities_appeared_in (desceding)
         """
         sorted_words = sorted(self.invert_tbl.values(), key=lambda word: word.total, reverse=True)
         sorted_words = [(word.key, word.total) for word in sorted_words]
@@ -97,10 +75,18 @@ class ReviewSearchEngine:
 
 if __name__ == '__main__':
 
-    search_engine = ReviewSearchEngine(stopwords=sys.argv[1])
+    search_engine = SearchEngine(stopwords=path.abspath(sys.argv[1]))
 
-    file_path = "sample_reviews.txt"
-    lines = open(file_path).readlines()
+    # ./Corpus/sgml/reut2-00*.xml
+    # for file in sorted(glob.glob(path.abspath(sys.argv[2]))):
+    #     print(file)
+    #     root = ET.parse(file).getroot()
+    #     for article_xml in root.findall('REUTERS'):
+    #         article = Article(article_xml.get('NEWID'), article_xml)
+    #         search_engine.add(article)
+
+    # ./Corpus/review_data.txt
+    lines = open(path.abspath(sys.argv[2])).readlines()
     for count, line in enumerate(lines):
         review = Review(count, line)
         search_engine.add(review)
@@ -114,6 +100,3 @@ if __name__ == '__main__':
     print("Most Common Words")
     for word, num_results in search_engine.most_common(10):
         print("{:20} : {} results".format(word, num_results))
-
-
-
