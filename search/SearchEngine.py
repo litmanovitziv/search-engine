@@ -1,11 +1,5 @@
-import os.path as path
-import sys
-import glob
-import xml.etree.ElementTree as ET
-
-from entities.Article import *
-from entities.Review import *
-from entities.Word import *
+from .Doc import *
+from .Word import *
 
 
 class SearchEngine:
@@ -71,32 +65,3 @@ class SearchEngine:
         sorted_words = sorted(self.invert_tbl.values(), key=lambda word: word.total, reverse=True)
         sorted_words = [(word.key, word.total) for word in sorted_words]
         return sorted_words[:n]
-
-
-if __name__ == '__main__':
-
-    search_engine = SearchEngine(stopwords=path.abspath(sys.argv[1]))
-
-    # ./Corpus/sgml/reut2-00*.xml
-    # for file in sorted(glob.glob(path.abspath(sys.argv[2]))):
-    #     print(file)
-    #     root = ET.parse(file).getroot()
-    #     for article_xml in root.findall('REUTERS'):
-    #         article = Article(article_xml.get('NEWID'), article_xml)
-    #         search_engine.add(article)
-
-    # ./Corpus/review_data.txt
-    lines = open(path.abspath(sys.argv[2])).readlines()
-    for count, line in enumerate(lines):
-        review = Review(count, line)
-        search_engine.add(review)
-
-    search_words = ["Great", "product", "love", "happy"]
-    for word in search_words:
-        search_res = search_engine.search(word, 5)
-        print("{:20} : {:4} results.".format(word, len(search_res)))
-        print("\n".join(search_res))
-
-    print("Most Common Words")
-    for word, num_results in search_engine.most_common(10):
-        print("{:20} : {} results".format(word, num_results))

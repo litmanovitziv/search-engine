@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from entities.Doc import Doc
+from search.Doc import Doc
 
 
 class Review(Doc):

@@ -1,5 +1,5 @@
 import unittest
-from entities.Doc import *
+from search.Doc import *
 
 
 class TestDoc(unittest.TestCase):

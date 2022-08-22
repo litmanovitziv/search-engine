@@ -1,5 +1,5 @@
 from datetime import datetime
-from entities.Doc import Doc
+from search.Doc import Doc
 
 
 class Article(Doc):
