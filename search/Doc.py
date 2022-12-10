@@ -1,22 +1,29 @@
 import string
-from pandas import Series
+import functools
+import math
 
 
 class Doc:
-    stopchars = string.punctuation
-    single_letter = ['a', 'i']
+    """ Text unit for indexing
 
-    def __init__(self, doc_id):
-        self.id = doc_id
-        self.histogram = dict()
+    Attributes
+    ----------
+    _id : int
+    _lang : str
+    _body : str
+    _histogram : dict
+    """
+
+    stopchars = string.punctuation
+
+    def __init__(self, doc_id, language='english'):
+        self._id = doc_id
+        self._lang = language
+        self._histogram = dict()
 
     @property
     def id(self):
         return self._id
-
-    @id.setter
-    def id(self, doc_id):
-        self._id = id
 
     @property
     def body(self):
@@ -25,21 +32,36 @@ class Doc:
     @body.setter
     def body(self, body):
         self._body = body
+        self.parse_words()
 
     @property
     def histogram(self):
         return self._histogram
 
-    @histogram.setter
-    def histogram(self, histogram):
-        self._histogram = histogram
+    @property
+    def terms(self):
+        return [*self._histogram]
 
-    def parse_sentences(self):
+    def get_term_metrics(self, term):
+        try:
+            return self._histogram[term]
+        except: return None
+
+    def set_histogram(self, tokens_list):
+        """ Construct index of document's terms including their frequencies """
+        self._histogram = dict(zip(tokens_list, [dict(tf=(tokens_list.count(i))) for i in tokens_list]))    # math.log1p
+
+    def set_token_weight(self, token, weight):
+        self._histogram[token].update(dict(w=(self._histogram[token]['tf'])*weight))
+
+    def parse_sentences(self, delimiter='.'):
+        """ Parse text by specified delimiter """
+
         if bool(self.body):
-            return [sentence.strip() for sentence in self.body.split('.')]
+            return [sentence for sentence in self.body.split(delimiter)]
         else: return []
 
-    def parse_words(self):
+    def parse_words(self, syntactic_func=lambda x: x):
         words = []
 
         if self.body is not None:
@@ -49,21 +71,20 @@ class Doc:
 
                 # remove attached punctuation
                 for c in self.stopchars:
-                    sentence = sentence.replace(c,"")
+                    sentence = sentence.replace(c, "")
 
                 # convert lowercase
                 sentence = sentence.lower()
 
                 # tokenize the sentence by spaces. Skip up stop words, single char and decimals
                 tokens = [token for token in sentence.split()
-                          if (len(token) > 1 and not(token.isdigit())) or token in self.single_letter]
-
+                          if (token.isalpha() and not(token.isdigit()) and len(token) > 1)]
                 words.extend(tokens)
-                self._histogram = Series(words).value_counts().to_dict()
 
-        return words
+        words = syntactic_func(words)
+        self.set_histogram(words)
 
     def to_dict(self, *args):
         res = dict(id=self.id, sentences=self.parse_sentences(), histogram=self.histogram)
-        res.update({k:getattr(self, k) for k in args})
+        res.update({k: getattr(self, k) for k in args})
         return res

@@ -31,14 +31,6 @@ class Review(Doc):
         self._title = title
 
     @property
-    def body(self):
-        return self._body
-
-    @body.setter
-    def body(self, body):
-        self._body = body
-
-    @property
     def date(self):
        return self._date
 

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='search-engine',
-    version='1.0.0',
+    version='1.1.0',
     author='Ziv Litmanowicz',
     license='MIT',
     description='A library for dealing with splittable files',
